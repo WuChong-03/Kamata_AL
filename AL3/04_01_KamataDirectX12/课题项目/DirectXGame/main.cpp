@@ -3,21 +3,10 @@
 #include "GameScene.h"
 using namespace KamataEngine;
 
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
-//branchTest
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// 初期化
-	KamataEngine::Initialize(L"GC2C_02_ゴ_チュウ");
+	Initialize(L"GC2C_02_ゴ_チュウ");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();// 🟡取得DXCommon实例
 
@@ -26,7 +15,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	//メインループ
 	while (true) {
-		if (KamataEngine::Update()) {
+		if (Update()) {
 			break;
 		}
 		// 更新
@@ -45,6 +34,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 解放
 	delete gameScene;
 	gameScene = nullptr;
-	KamataEngine::Finalize();
+	Finalize();
 	return 0;
 }
