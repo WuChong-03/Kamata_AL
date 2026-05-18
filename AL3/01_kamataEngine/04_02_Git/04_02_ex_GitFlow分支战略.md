@@ -1,4 +1,7 @@
-# GitHub Flow
+# 分支战略 和 GitHub Flow
+
+团队使用 Git 开发时，会使用不同的分支管理方法。  
+这种开发时的分支运用方式称为：**ブランチ戦略**
 
 **[ブランチ戦略](#ブランチ戦略)**  
 **[GitHub Flow](#github-flow)**  
@@ -9,210 +12,104 @@
 
 ---
 
-## ブランチ戦略
+## 1. GitHub Flow
 
-团队使用 Git 开发时，会使用不同的分支管理方法。
+GitHub Flow 是最常用且最简单的 ブランチ戦略 之一。
 
-这种开发时的分支运用方式称为：
+其主要使用：
 
->ブランチ戦略（branch strategy）
+`main`  
+`feature/xxx`
 
----
+两种分支进行开发。
 
-## GitHub Flow
+- ### feature
 
-GitHub Flow 是最常用且最简单的分支战术之一。
+    `feature/`
 
-主要使用：
+    属于功能开发分支，后面通常接功能名。
 
-- main
-- feature/xxx
+    `feature/enemy1`  
+    `feature/particle-editor`
 
-这两种分支进行开发。
-
-### feature 分支命名
-
-feature 后面通常会接功能名。
-
-例如：
-
-```text
-feature/enemy1
-feature/particle-editor
-```
-
-这样看到分支名就能立刻知道：
-
->“这个分支是在开发什么功能”
+    一个 feature 分支通常负责一个功能。
 
 ---
 
-## mainブランチについて
+- ### main
 
-GitHub 从 2020 年开始：
+    `main`
 
->默认分支名称从 master 改为 main
+    默认主分支。
 
-原因是：
+    通常：
 
->master/slave 容易联想到奴隶制度
+    `main = 当前稳定版本`
 
-不过：
+    feature 分支开发完成后：
 
-- 现在很多旧项目仍然使用 master
-- 功能上没有区别
+    `merge 回 main`
+
+GitHub Flow 会保持：
+
+`main 始终保持稳定、可运行`
+
+---
+
+## 2. GitHub Flow 流程
+
+- 1. 从 main 分支创建 feature 分支，**创建前先 `pull` 最新 main**
+
+---
+
+- 2. 在 feature 分支开发功能并 commit，开发期间 **不要直接修改 main**
+
+---
+
+- 3. `push` feature 分支，并在 GitHub 上创建 **Pull Request**，请求负责人进行 Review 与 Merge
+
+---
+
+- 4. merge负责人需要解决冲突（conflict），并 **确认程序正常运行**，之后再 merge / push main
+
+---
+
+- 5. 功能完成后：删除远程和本地的 feature 分支，避免 branch 过多导致管理混乱
+
+---
+
+## 3. GitHub Flow 的利点
+
+GitHub Flow 的特点：
+
+- 结构简单
+- 容易理解
+- 适合小团队
+- main 较稳定
+- 适合持续开发
 
 因此：
 
-```text
-master = main
-```
-
-可以简单理解为：
-
->默认分支
+很多学校项目、小团队项目都会使用 GitHub Flow。
 
 ---
 
-## GitHub Flowの流れ
-
-### ① 从 main 分支创建 feature 分支
-
-创建分支前：
-
->先 pull 最新 main
-
----
-
-### ② 在 feature 分支开发功能并 commit
-
-功能开发期间：
-
->不要直接修改 main
-
----
-
-### ③ push feature 分支并创建 Pull Request
-
-将功能提交给：
-
-- 团队成员
-- Merge负责人
-
-进行确认。
-
----
-
-### ④ Merge 到 main
-
-Merge 时通常需要：
-
-- 解决冲突（conflict）
-- 确认程序正常运行
-
-之后再 push main。
-
----
-
-### ⑤ 删除远程 feature 分支
-
-功能完成后：
-
->删除已经 merge 的远程分支
-
----
-
-### ⑥ 删除本地 feature 分支
-
-保持分支结构整洁。
-
----
-
-## GitHub Flowの利点
-
-### main 分支始终保持可运行
-
-游戏开发中：
-
->开发中的功能可能暂时无法运行
-
-但 GitHub Flow 会保持：
-
-```text
-main 始终是稳定状态
-```
-
----
-
-### 分支结构简单
-
-功能完成后会删除 feature 分支。
-
-因此：
-
->仓库不会堆积大量旧分支
-
----
-
-### 学习成本低
-
-GitHub Flow 规则简单：
-
-- 好理解
-- 好维护
-- 适合小团队与学生开发
-
----
-
-## Git-flow
-
-Git-flow 是另一种著名分支战略。
-
-相比 GitHub Flow：
-
->结构更复杂
-
-通常会使用：
-
-- main
-- develop
-- release
-- feature
-- hotfix
-
-等多个分支。
-
----
-
-### Git-flow特点
-
-适合：
-
-- 大型团队
-- 长期持续开发
-- 多版本维护
-
-但对于学生开发：
-
->通常有些过度复杂（オーバースペック）
-
----
-
-## キーワード（关键词）
-
-| 中文 | 日语 |
-|---|---|
-| 分支战略 | ブランチ戦略 |
-| 默认分支 | main / master |
-| 功能分支 | featureブランチ |
-| 拉取请求 | Pull Request |
-| 合并 | Merge |
-| 冲突 | conflict |
-| 推送 | push |
-| 提交 | commit |
-| 拉取 | pull |
-| GitHub工作流 | GitHub Flow |
-| Git-flow | Git-flow |
-| 热修复 | hotfix |
-| 发布分支 | release |
-| 开发分支 | develop |
+> 关于 Git-flow 和 GitHub Flow 的区别
+>
+> Git-flow 属于更复杂的分支战略。
+>
+> 除了：
+>
+> `main`  
+> `feature`
+>
+> 还会使用：
+>
+> `develop`  
+> `release`  
+> `hotfix`
+>
+> 等更多分支。
+>
+> GitHub Flow 更简单，适合目前课程与小团队开发。  
+> 目前暂时主要使用 GitHub Flow。

@@ -5,33 +5,29 @@ using namespace KamataEngine;
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
-	// 初期化
+	// 初期化区
 	Initialize(L"GC2C_02_ゴ_チュウ");
 
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();// 🟡取得DXCommon实例
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	GameScene* gameScene = new GameScene();
 	gameScene->Initialize();
 
-	//メインループ
+	//主循环
 	while (true) {
 		if (Update()) {
 			break;
 		}
-		// 更新
 		gameScene->Update();
 
-
-
-		// 描画
-		dxCommon->PreDraw();	// 🟡准备画
+		dxCommon->PreDraw();
 
 		gameScene->Draw();
 
-		dxCommon->PostDraw();	// 🟡显示到屏幕
+		dxCommon->PostDraw();
 	}
 
-	// 解放
+	//释放区
 	delete gameScene;
 	gameScene = nullptr;
 	Finalize();
