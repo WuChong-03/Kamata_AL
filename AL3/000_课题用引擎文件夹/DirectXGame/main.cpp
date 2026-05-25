@@ -55,8 +55,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	#endif
 	#pragma endregion
 
+	#pragma region 05_3D基础图形绘制(线)初始化
+		//取得参考摄象机
+	    PrimitiveDrawer::GetInstance()->SetCamera(&camera);
+	#pragma endregion
 	// 主循环
-	while (true) {
+	while (true) {	
 		if (Update()) break;
 
 	#pragma region 04_ImGui更新处理
@@ -128,6 +132,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	#ifdef _DEBUG
 	imguiManager->Draw();
 	#endif
+
+	// 05_3D基础图形绘制(线)
+	// 绘制一条红色线
+	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+
+	// 绘制一条绿色线
+	PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {10, 0, 0}, {0.0f, 1.0f, 0.0f, 1.0f});
+
 	dxCommon->PostDraw();
 	#pragma endregion
 
