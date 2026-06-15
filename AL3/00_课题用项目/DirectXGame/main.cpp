@@ -1,7 +1,6 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include <Windows.h>
-
 using namespace KamataEngine;
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -26,9 +25,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PreDraw();
 
 		gameScene->Draw();
-
-		// 07_AxisIndicator坐标指示器绘制
-		AxisIndicator::GetInstance()->Draw();
 
 		dxCommon->PostDraw();
 	}

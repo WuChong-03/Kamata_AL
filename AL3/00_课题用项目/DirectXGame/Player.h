@@ -1,19 +1,19 @@
 #pragma once
 #include "KamataEngine.h"
-#include "Player.h"
 using namespace KamataEngine;
 
-class GameScene {
+class Player {
 public:
-	void Initialize();
+	void Initialize(Model* model, uint32_t textureHandle, Camera* camera);
+
 	void Update();
+
 	void Draw();
-	~GameScene();
 
 private:
 
-	uint32_t modelTextureHandle_ = 0;
+	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
+	uint32_t textureHandle_ = 0u;
 	Camera* camera_ = nullptr;
-	Player* player_ = nullptr;
 };
