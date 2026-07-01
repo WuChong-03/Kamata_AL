@@ -7,6 +7,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle, Camera* camera) {
 
 	// 检查空指针
 	assert(model);
+	assert(camera);
 
 	model_ = model;
 	textureHandle_ = textureHandle;
