@@ -1,35 +1,40 @@
 #include "GameScene.h"
+#include "WorldTransformUpdate.h"
 
 using namespace KamataEngine;
-using namespace KamataEngine::MathUtility;
 
 void GameScene::Initialize() {
 
-	// player貼图
-	modelTextureHandle_ = TextureManager::Load("test/image.png");
-	model_ = Model::Create();
-
 	// 3Dモデルデータの生成
-	modelBlock_ = Model::Create();
+	modelPlayer_ = Model::CreateFromOBJ("player", true);
+	modelBlock_ = Model::CreateFromOBJ("block", true);
+	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
 
-	// 摄像机创建和初始化
+	// カメラの初期化
+	camera_.farZ = 2000.0f;
 	camera_.Initialize();
+	camera_.UpdateMatrix();
 
 #ifdef _DEBUG
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
+	debugCamera_->SetFarZ(2000.0f);
 #endif
 
-	// 创建实例和初始化
+	// 自キャラの生成と初期化
 	player_ = new Player();
-	player_->Initialize(model_, modelTextureHandle_, &camera_);
+	player_->Initialize(modelPlayer_, &camera_);
+
+	// 天球の生成と初期化
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_);
 
 	// 要素数
 	const uint32_t kNumBlockVirtical = 10;
 	const uint32_t kNumBlockHorizontal = 20;
 	// ブロック1個分の横幅
-	const float kBlockWidth = 2.0f;
-	const float kBlockHeight = 2.0f;
+	const float kBlockWidth = 1.0f;
+	const float kBlockHeight = 1.0f;
 
 	// 要素数を変更する
 	// 列数を設定（縦方向のブロック数）
@@ -60,27 +65,29 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+	skydome_->Update();
 
 #ifdef _DEBUG
 	// デバッグカメラの切り替え
 	if (Input::GetInstance()->TriggerKey(DIK_C)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
-#endif
 
 	// カメラの処理
 	if (isDebugCameraActive_) {
-#ifdef _DEBUG
 		debugCamera_->Update();
 		camera_.matView = debugCamera_->GetCamera().matView;
 		camera_.matProjection = debugCamera_->GetCamera().matProjection;
 		// ビュープロジェクション行列の転送
 		camera_.TransferMatrix();
-#endif
 	} else {
 		// ビュープロジェクション行列の更新と転送
 		camera_.UpdateMatrix();
 	}
+#else
+	// ビュープロジェクション行列の更新と転送
+	camera_.UpdateMatrix();
+#endif
 
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -89,12 +96,8 @@ void GameScene::Update() {
 				continue;
 			}
 
-			// アフィン変換行列の作成
-			worldTransformBlock->matWorld_ = MakeScaleMatrix(worldTransformBlock->scale_) * MakeRotateXMatrix(worldTransformBlock->rotation_.x) * MakeRotateYMatrix(worldTransformBlock->rotation_.y) *
-			                                 MakeRotateZMatrix(worldTransformBlock->rotation_.z) * MakeTranslateMatrix(worldTransformBlock->translation_);
-
-			// 定数バッファに転送する
-			worldTransformBlock->TransferMatrix();
+			// 行列を更新して定数バッファに転送
+			WorldTransformUpdate(*worldTransformBlock);
 		}
 	}
 }
@@ -102,6 +105,9 @@ void GameScene::Update() {
 void GameScene::Draw() {
 
 	Model::PreDraw();
+
+	// 天球の描画
+	skydome_->Draw(camera_);
 
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -113,6 +119,9 @@ void GameScene::Draw() {
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 		}
 	}
+
+	// 自キャラの描画
+	player_->Draw();
 
 	Model::PostDraw();
 }
@@ -129,12 +138,20 @@ GameScene::~GameScene() {
 	delete player_;
 	player_ = nullptr;
 
-	delete model_;
-	model_ = nullptr;
+	delete skydome_;
+	skydome_ = nullptr;
+
+	delete modelPlayer_;
+	modelPlayer_ = nullptr;
 
 	delete modelBlock_;
 	modelBlock_ = nullptr;
 
+	delete modelSkydome_;
+	modelSkydome_ = nullptr;
+
+#ifdef _DEBUG
 	delete debugCamera_;
 	debugCamera_ = nullptr;
+#endif
 }

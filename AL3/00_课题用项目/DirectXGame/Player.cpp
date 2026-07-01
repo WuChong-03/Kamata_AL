@@ -1,26 +1,25 @@
 #include "Player.h"
-#include <cassert> 
+#include "WorldTransformUpdate.h"
+#include <cassert>
 
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model, uint32_t textureHandle, Camera* camera) {
+void Player::Initialize(Model* model, Camera* camera) {
 
-	// 检查空指针
 	assert(model);
 	assert(camera);
 
 	model_ = model;
-	textureHandle_ = textureHandle;
 	camera_ = camera;
 
-	// 初始化世界变换
 	worldTransform_.Initialize();
+	worldTransform_.translation_ = {-3.0f, -3.0f, 0.0f};
 }
 
 void Player::Update() {
-	worldTransform_.TransferMatrix();
+
+	// 行列を更新して定数バッファに転送
+	WorldTransformUpdate(worldTransform_);
 }
 
-void Player::Draw() {
-	model_->Draw(worldTransform_, *camera_, textureHandle_);
-}
+void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
