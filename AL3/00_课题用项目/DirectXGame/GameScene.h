@@ -1,5 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
+#include "MapChipField.h"
 #include "Player.h"
 #include "Skydome.h"
 #include <vector>
@@ -13,11 +14,16 @@ public:
 	~GameScene();
 
 private:
+	void GenerateBlocks();
+
 	Camera camera_;
 	Player* player_ = nullptr;
 
 	Model* modelBlock_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+
+	// マップチップフィールド
+	MapChipField* mapChipField_ = nullptr;
 
 	// 自キャラ用3Dモデル
 	Model* modelPlayer_ = nullptr;

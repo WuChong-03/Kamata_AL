@@ -3,7 +3,7 @@
 
 class Player {
 public:
-	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const KamataEngine::Vector3& position);
 	void Update();
 	void Draw();
 

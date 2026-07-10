@@ -4,7 +4,7 @@
 
 using namespace KamataEngine;
 
-void Player::Initialize(Model* model, Camera* camera) {
+void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	assert(model);
 	assert(camera);
@@ -13,7 +13,7 @@ void Player::Initialize(Model* model, Camera* camera) {
 	camera_ = camera;
 
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = {-3.0f, -3.0f, 0.0f};
+	worldTransform_.translation_ = position;
 }
 
 void Player::Update() {
