@@ -1,4 +1,5 @@
 #pragma once
+#include "CameraController.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Player.h"
@@ -16,7 +17,7 @@ public:
 private:
 	void GenerateBlocks();
 
-	Camera camera_;
+	CameraController* cameraController_ = nullptr;
 	Player* player_ = nullptr;
 
 	Model* modelBlock_ = nullptr;

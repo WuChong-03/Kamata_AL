@@ -10,10 +10,9 @@ void GameScene::Initialize() {
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
 
-	// カメラの初期化
-	camera_.farZ = 2000.0f;
-	camera_.Initialize();
-	camera_.UpdateMatrix();
+	// カメラコントローラの生成と初期化
+	cameraController_ = new CameraController();
+	cameraController_->Initialize();
 
 #ifdef _DEBUG
 	// デバッグカメラの生成
@@ -25,12 +24,26 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
+	// カメラ移動範囲の指定
+	CameraController::Rect cameraArea = {
+	    12.0f,
+	    MapChipField::kBlockWidth * MapChipField::kNumBlockHorizontal - 12.0f,
+	    0.0f,
+	    MapChipField::kBlockHeight * MapChipField::kNumBlockVirtical,
+	};
+	cameraController_->SetMovableArea(cameraArea);
+
 	// 自キャラの生成と初期化
 	player_ = new Player();
 	const uint32_t kPlayerStartX = 1;
 	const uint32_t kPlayerStartY = 18;
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(kPlayerStartX, kPlayerStartY);
-	player_->Initialize(modelPlayer_, &camera_, playerPosition);
+	player_->Initialize(modelPlayer_, &cameraController_->GetCamera(), playerPosition);
+
+	// カメラコントローラに追従対象をセット
+	cameraController_->SetTarget(player_);
+	// カメラを追従対象へ瞬間合わせ
+	cameraController_->Reset();
 
 	// 天球の生成と初期化
 	skydome_ = new Skydome();
@@ -54,17 +67,18 @@ void GameScene::Update() {
 	// カメラの処理
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
-		camera_.matView = debugCamera_->GetCamera().matView;
-		camera_.matProjection = debugCamera_->GetCamera().matProjection;
+		Camera& camera = cameraController_->GetCamera();
+		camera.matView = debugCamera_->GetCamera().matView;
+		camera.matProjection = debugCamera_->GetCamera().matProjection;
 		// ビュープロジェクション行列の転送
-		camera_.TransferMatrix();
+		camera.TransferMatrix();
 	} else {
-		// ビュープロジェクション行列の更新と転送
-		camera_.UpdateMatrix();
+		// カメラコントローラの更新
+		cameraController_->Update();
 	}
 #else
-	// ビュープロジェクション行列の更新と転送
-	camera_.UpdateMatrix();
+	// カメラコントローラの更新
+	cameraController_->Update();
 #endif
 
 	// ブロックの更新
@@ -84,8 +98,10 @@ void GameScene::Draw() {
 
 	Model::PreDraw();
 
+	Camera& camera = cameraController_->GetCamera();
+
 	// 天球の描画
-	skydome_->Draw(camera_);
+	skydome_->Draw(camera);
 
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -94,7 +110,7 @@ void GameScene::Draw() {
 				continue;
 			}
 
-			modelBlock_->Draw(*worldTransformBlock, camera_);
+			modelBlock_->Draw(*worldTransformBlock, camera);
 		}
 	}
 
@@ -152,6 +168,9 @@ GameScene::~GameScene() {
 
 	delete player_;
 	player_ = nullptr;
+
+	delete cameraController_;
+	cameraController_ = nullptr;
 
 	delete skydome_;
 	skydome_ = nullptr;
