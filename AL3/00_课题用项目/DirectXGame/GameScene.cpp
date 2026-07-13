@@ -27,7 +27,10 @@ void GameScene::Initialize() {
 
 	// 自キャラの生成と初期化
 	player_ = new Player();
-	player_->Initialize(modelPlayer_, &camera_, mapChipField_->GetLeftBottomBlankPosition());
+	const uint32_t kPlayerStartX = 1;
+	const uint32_t kPlayerStartY = 18;
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(kPlayerStartX, kPlayerStartY);
+	player_->Initialize(modelPlayer_, &camera_, playerPosition);
 
 	// 天球の生成と初期化
 	skydome_ = new Skydome();
