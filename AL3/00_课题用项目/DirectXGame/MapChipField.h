@@ -20,6 +20,19 @@ struct MapChipData {
 /// </summary>
 class MapChipField {
 public:
+	// 範囲矩形
+	struct Rect {
+		float left;   // 左端
+		float right;  // 右端
+		float bottom; // 下端
+		float top;    // 上端
+	};
+
+	struct IndexSet {
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
 	// 1ブロックのサイズ
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
@@ -46,6 +59,16 @@ public:
 	/// マップチップ座標を取得する
 	/// </summary>
 	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+
+	/// <summary>
+	/// 座標からマップチップ番号を取得する
+	/// </summary>
+	IndexSet GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position);
+
+	/// <summary>
+	/// ブロックの範囲矩形を取得する
+	/// </summary>
+	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	/// <summary>
 	/// 左下から探した最初の空白マスの座標を取得する

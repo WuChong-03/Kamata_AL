@@ -39,6 +39,7 @@ void GameScene::Initialize() {
 	const uint32_t kPlayerStartY = 18;
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(kPlayerStartX, kPlayerStartY);
 	player_->Initialize(modelPlayer_, &cameraController_->GetCamera(), playerPosition);
+	player_->SetMapChipField(mapChipField_);
 
 	// カメラコントローラに追従対象をセット
 	cameraController_->SetTarget(player_);
