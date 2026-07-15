@@ -1,5 +1,6 @@
 #pragma once
 #include "KamataEngine.h"
+#include <array>
 
 class MapChipField;
 
@@ -55,17 +56,27 @@ private:
 	static inline const float kHeight = 0.8f;
 	// めり込み防止用の微小な余白
 	static inline const float kBlank = 0.05f;
-	// 仮の地面高さ
-	static inline const float kGroundHeight = 1.0f;
+	// 接地チェック用の微小な下方向ずらし
+	static inline const float kGroundSearchHeight = 0.06f;
+	// 着地時の速度減衰率
+	static inline const float kAttenuationLanding = 0.05f;
+	// 壁接触時の速度減衰率
+	static inline const float kAttenuationWall = 0.05f;
 
 	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
+	std::array<KamataEngine::Vector3, kNumCorner> CornerPositions(const KamataEngine::Vector3& center);
+	bool IsMapChipBlock(const KamataEngine::Vector3& position);
 	void MoveInput();
 	void CheckMapCollision(CollisionMapInfo& info);
 	void CheckMapCollisionUp(CollisionMapInfo& info);
+	void CheckMapCollisionDown(CollisionMapInfo& info);
+	void CheckMapCollisionRight(CollisionMapInfo& info);
+	void CheckMapCollisionLeft(CollisionMapInfo& info);
 	void MoveByCollisionResult(const CollisionMapInfo& info);
 	void ProcessCeilingCollision(const CollisionMapInfo& info);
+	void ProcessWallCollision(const CollisionMapInfo& info);
+	void SwitchGroundState(const CollisionMapInfo& info);
 	void UpdateTurn();
-	void UpdateGroundState();
 	void UpdateMatrix();
 
 	KamataEngine::WorldTransform worldTransform_;
