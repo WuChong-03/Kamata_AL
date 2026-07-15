@@ -1,7 +1,9 @@
 #pragma once
+#include "Collision.h"
 #include "KamataEngine.h"
 #include <array>
 
+class Enemy;
 class MapChipField;
 
 class Player {
@@ -14,6 +16,11 @@ public:
 
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
+	KamataEngine::Vector3 GetWorldPosition() const;
+	AABB GetAABB() const;
+
+	// 衝突応答
+	void OnCollision(const Enemy* enemy);
 
 private:
 	// 左右

@@ -48,3 +48,18 @@ void Enemy::Update() {
 }
 
 void Enemy::Draw() { model_->Draw(worldTransform_, *camera_); }
+
+Vector3 Enemy::GetWorldPosition() const { return worldTransform_.translation_; }
+
+AABB Enemy::GetAABB() const {
+
+	Vector3 worldPos = GetWorldPosition();
+
+	AABB aabb;
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+void Enemy::OnCollision(const Player* player) { (void)player; }

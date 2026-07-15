@@ -5,6 +5,7 @@
 #include "MapChipField.h"
 #include "Player.h"
 #include "Skydome.h"
+#include <list>
 #include <vector>
 using namespace KamataEngine;
 
@@ -17,10 +18,11 @@ public:
 
 private:
 	void GenerateBlocks();
+	void CheckAllCollisions();
 
 	CameraController* cameraController_ = nullptr;
 	Player* player_ = nullptr;
-	Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	Model* modelBlock_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
