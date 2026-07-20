@@ -2,6 +2,7 @@
 #include "CameraController.h"
 #include "DeathParticles.h"
 #include "Enemy.h"
+#include "Fade.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Player.h"
@@ -22,9 +23,13 @@ public:
 private:
 	// ゲームのフェーズ
 	enum class Phase {
+		kFadeIn,
 		kPlay,
 		kDeath,
+		kFadeOut,
 	};
+	// フェード時間
+	static inline const float kFadeDuration = 1.0f;
 
 	void GenerateBlocks();
 	void CheckAllCollisions();
@@ -34,9 +39,11 @@ private:
 	void ChangePhase();
 
 	// ゲームの現在フェーズ
-	Phase phase_ = Phase::kPlay;
+	Phase phase_ = Phase::kFadeIn;
 	// 終了フラグ
 	bool finished_ = false;
+	// フェード
+	Fade* fade_ = nullptr;
 
 	CameraController* cameraController_ = nullptr;
 	Player* player_ = nullptr;

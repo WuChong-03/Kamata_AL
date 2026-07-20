@@ -1,4 +1,5 @@
 #pragma once
+#include "Fade.h"
 #include "KamataEngine.h"
 
 /// <summary>
@@ -27,6 +28,19 @@ public:
 	bool IsFinished() const { return finished_; }
 
 private:
+	// シーンのフェーズ
+	enum class Phase {
+		kFadeIn,
+		kMain,
+		kFadeOut,
+	};
+
+	// フェード時間
+	static inline const float kFadeDuration = 1.0f;
+	// 現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+	// フェード
+	Fade* fade_ = nullptr;
 	// タイトル文字のモデル
 	KamataEngine::Model* modelTitleFont_ = nullptr;
 	// 自キャラのモデル

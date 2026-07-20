@@ -5,6 +5,11 @@ using namespace KamataEngine;
 
 void GameScene::Initialize() {
 
+	// フェードの生成と初期化
+	fade_ = new Fade();
+	fade_->Initialize();
+	fade_->Start(Fade::Status::FadeIn, kFadeDuration);
+
 	// 3Dモデルデータの生成
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
 	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
@@ -64,20 +69,29 @@ void GameScene::Initialize() {
 
 	// ブロックの生成
 	GenerateBlocks();
+	// フェードイン中にも正しい位置で表示できるように更新
+	skydome_->Update();
+	UpdateBlocks();
 
-	// ゲームプレイフェーズから開始
-	phase_ = Phase::kPlay;
+	// フェードインフェーズから開始
+	phase_ = Phase::kFadeIn;
 	finished_ = false;
 }
 
 void GameScene::Update() {
 
 	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+		break;
 	case Phase::kPlay:
 		UpdatePlayPhase();
 		break;
 	case Phase::kDeath:
 		UpdateDeathPhase();
+		break;
+	case Phase::kFadeOut:
+		fade_->Update();
 		break;
 	}
 
@@ -137,11 +151,6 @@ void GameScene::UpdateDeathPhase() {
 		deathParticles_->Update();
 	}
 
-	// デスパーティクルの演出が終了したらゲームシーンを終了
-	if (deathParticles_ && deathParticles_->IsFinished()) {
-		finished_ = true;
-	}
-
 	UpdateBlocks();
 }
 
@@ -163,6 +172,12 @@ void GameScene::UpdateBlocks() {
 void GameScene::ChangePhase() {
 
 	switch (phase_) {
+	case Phase::kFadeIn:
+		if (fade_->IsFinished()) {
+			fade_->Stop();
+			phase_ = Phase::kPlay;
+		}
+		break;
 	case Phase::kPlay:
 		if (player_->IsDead()) {
 			// デス演出フェーズに切り替え
@@ -177,6 +192,15 @@ void GameScene::ChangePhase() {
 		}
 		break;
 	case Phase::kDeath:
+		if (deathParticles_ && deathParticles_->IsFinished()) {
+			fade_->Start(Fade::Status::FadeOut, kFadeDuration);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
+	case Phase::kFadeOut:
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
 		break;
 	}
 }
@@ -202,7 +226,7 @@ void GameScene::Draw() {
 	}
 
 	// 自キャラの描画
-	if (phase_ == Phase::kPlay) {
+	if (phase_ == Phase::kFadeIn || phase_ == Phase::kPlay) {
 		player_->Draw();
 	}
 
@@ -217,6 +241,9 @@ void GameScene::Draw() {
 	}
 
 	Model::PostDraw();
+
+	// 必ずシーンの最後に描画して最前面に表示する
+	fade_->Draw();
 }
 
 void GameScene::GenerateBlocks() {
@@ -280,6 +307,9 @@ void GameScene::CheckAllCollisions() {
 }
 
 GameScene::~GameScene() {
+
+	delete fade_;
+	fade_ = nullptr;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {

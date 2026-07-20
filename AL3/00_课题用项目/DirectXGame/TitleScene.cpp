@@ -7,6 +7,12 @@ using namespace KamataEngine;
 
 void TitleScene::Initialize() {
 
+	// フェードの生成と初期化
+	fade_ = new Fade();
+	fade_->Initialize();
+	fade_->Start(Fade::Status::FadeIn, kFadeDuration);
+	phase_ = Phase::kFadeIn;
+
 	// 3Dモデルデータの生成
 	modelTitleFont_ = Model::CreateFromOBJ("titleFont", true);
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
@@ -34,20 +40,38 @@ void TitleScene::Initialize() {
 
 void TitleScene::Update() {
 
-	animationTimer_ += 1.0f / 60.0f;
+	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			fade_->Stop();
+			phase_ = Phase::kMain;
+		}
+		break;
+	case Phase::kMain:
+		animationTimer_ += 1.0f / 60.0f;
 
-	// タイトル文字と自キャラに動きをつける
-	worldTransformTitleFont_.rotation_.y = std::sin(animationTimer_) * 0.15f;
-	worldTransformTitleFont_.translation_.y = 2.0f + std::sin(animationTimer_ * 2.0f) * 0.15f;
-	worldTransformPlayer_.rotation_.y += 0.02f;
-	worldTransformPlayer_.translation_.y = -2.0f + std::sin(animationTimer_ * 3.0f) * 0.2f;
+		// タイトル文字と自キャラに動きをつける
+		worldTransformTitleFont_.rotation_.y = std::sin(animationTimer_) * 0.15f;
+		worldTransformTitleFont_.translation_.y = 2.0f + std::sin(animationTimer_ * 2.0f) * 0.15f;
+		worldTransformPlayer_.rotation_.y += 0.02f;
+		worldTransformPlayer_.translation_.y = -2.0f + std::sin(animationTimer_ * 3.0f) * 0.2f;
 
-	WorldTransformUpdate(worldTransformTitleFont_);
-	WorldTransformUpdate(worldTransformPlayer_);
+		WorldTransformUpdate(worldTransformTitleFont_);
+		WorldTransformUpdate(worldTransformPlayer_);
 
-	// スペースキーでタイトルシーンを終了
-	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
-		finished_ = true;
+		// スペースキーでフェードアウトを開始
+		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+			fade_->Start(Fade::Status::FadeOut, kFadeDuration);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
+	case Phase::kFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+		break;
 	}
 }
 
@@ -59,9 +83,15 @@ void TitleScene::Draw() {
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
 
 	Model::PostDraw();
+
+	// 必ずシーンの最後に描画して最前面に表示する
+	fade_->Draw();
 }
 
 TitleScene::~TitleScene() {
+
+	delete fade_;
+	fade_ = nullptr;
 
 	delete modelTitleFont_;
 	modelTitleFont_ = nullptr;
