@@ -1,5 +1,6 @@
 #pragma once
 #include "CameraController.h"
+#include "DeathParticles.h"
 #include "Enemy.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
@@ -34,6 +35,10 @@ private:
 	Model* modelPlayer_ = nullptr;
 	// 敵用3Dモデル
 	Model* modelEnemy_ = nullptr;
+	// デスパーティクル用3Dモデル
+	Model* modelDeathParticle_ = nullptr;
+	// デスパーティクル
+	DeathParticles* deathParticles_ = nullptr;
 
 	// 天球
 	Skydome* skydome_ = nullptr;

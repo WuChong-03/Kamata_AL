@@ -8,6 +8,7 @@ void GameScene::Initialize() {
 	// 3Dモデルデータの生成
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
 	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
 
@@ -42,6 +43,10 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, &cameraController_->GetCamera(), playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
+	// デスパーティクルの生成テスト
+	deathParticles_ = new DeathParticles();
+	deathParticles_->Initialize(modelDeathParticle_, &cameraController_->GetCamera(), player_->GetWorldPosition());
+
 	// 敵の生成と初期化
 	const float enemyPositionXs[] = {18.0f, 26.0f};
 	for (float enemyPositionX : enemyPositionXs) {
@@ -72,6 +77,9 @@ void GameScene::Update() {
 		enemy->Update();
 	}
 	skydome_->Update();
+	if (deathParticles_) {
+		deathParticles_->Update();
+	}
 
 	// 全ての当たり判定を行う
 	CheckAllCollisions();
@@ -138,6 +146,11 @@ void GameScene::Draw() {
 	// 敵の描画
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
+	}
+
+	// デスパーティクルの描画
+	if (deathParticles_) {
+		deathParticles_->Draw();
 	}
 
 	Model::PostDraw();
@@ -218,6 +231,9 @@ GameScene::~GameScene() {
 	delete player_;
 	player_ = nullptr;
 
+	delete deathParticles_;
+	deathParticles_ = nullptr;
+
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -234,6 +250,9 @@ GameScene::~GameScene() {
 
 	delete modelEnemy_;
 	modelEnemy_ = nullptr;
+
+	delete modelDeathParticle_;
+	modelDeathParticle_ = nullptr;
 
 	delete modelBlock_;
 	modelBlock_ = nullptr;
