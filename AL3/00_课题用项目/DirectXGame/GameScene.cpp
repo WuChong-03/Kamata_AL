@@ -43,10 +43,6 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, &cameraController_->GetCamera(), playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	// デスパーティクルの生成テスト
-	deathParticles_ = new DeathParticles();
-	deathParticles_->Initialize(modelDeathParticle_, &cameraController_->GetCamera(), player_->GetWorldPosition());
-
 	// 敵の生成と初期化
 	const float enemyPositionXs[] = {18.0f, 26.0f};
 	for (float enemyPositionX : enemyPositionXs) {
@@ -68,18 +64,34 @@ void GameScene::Initialize() {
 
 	// ブロックの生成
 	GenerateBlocks();
+
+	// ゲームプレイフェーズから開始
+	phase_ = Phase::kPlay;
+	finished_ = false;
 }
 
 void GameScene::Update() {
+
+	switch (phase_) {
+	case Phase::kPlay:
+		UpdatePlayPhase();
+		break;
+	case Phase::kDeath:
+		UpdateDeathPhase();
+		break;
+	}
+
+	// フェーズの切り替え
+	ChangePhase();
+}
+
+void GameScene::UpdatePlayPhase() {
 
 	player_->Update();
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
 	}
 	skydome_->Update();
-	if (deathParticles_) {
-		deathParticles_->Update();
-	}
 
 	// 全ての当たり判定を行う
 	CheckAllCollisions();
@@ -107,6 +119,34 @@ void GameScene::Update() {
 	cameraController_->Update();
 #endif
 
+	UpdateBlocks();
+}
+
+void GameScene::UpdateDeathPhase() {
+
+	// 天球の更新
+	skydome_->Update();
+
+	// 敵の更新
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
+	// デスパーティクルの更新
+	if (deathParticles_) {
+		deathParticles_->Update();
+	}
+
+	// デスパーティクルの演出が終了したらゲームシーンを終了
+	if (deathParticles_ && deathParticles_->IsFinished()) {
+		finished_ = true;
+	}
+
+	UpdateBlocks();
+}
+
+void GameScene::UpdateBlocks() {
+
 	// ブロックの更新
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -117,6 +157,27 @@ void GameScene::Update() {
 			// 行列を更新して定数バッファに転送
 			WorldTransformUpdate(*worldTransformBlock);
 		}
+	}
+}
+
+void GameScene::ChangePhase() {
+
+	switch (phase_) {
+	case Phase::kPlay:
+		if (player_->IsDead()) {
+			// デス演出フェーズに切り替え
+			phase_ = Phase::kDeath;
+
+			// 自キャラの座標を取得
+			const Vector3 deathParticlesPosition = player_->GetWorldPosition();
+
+			// 自キャラの座標にデスパーティクルを発生、初期化
+			deathParticles_ = new DeathParticles();
+			deathParticles_->Initialize(modelDeathParticle_, &cameraController_->GetCamera(), deathParticlesPosition);
+		}
+		break;
+	case Phase::kDeath:
+		break;
 	}
 }
 
@@ -141,7 +202,9 @@ void GameScene::Draw() {
 	}
 
 	// 自キャラの描画
-	player_->Draw();
+	if (phase_ == Phase::kPlay) {
+		player_->Draw();
+	}
 
 	// 敵の描画
 	for (Enemy* enemy : enemies_) {

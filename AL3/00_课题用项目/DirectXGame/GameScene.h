@@ -16,10 +16,27 @@ public:
 	void Update();
 	void Draw();
 	~GameScene();
+	// 終了フラグのgetter
+	bool IsFinished() const { return finished_; }
 
 private:
+	// ゲームのフェーズ
+	enum class Phase {
+		kPlay,
+		kDeath,
+	};
+
 	void GenerateBlocks();
 	void CheckAllCollisions();
+	void UpdatePlayPhase();
+	void UpdateDeathPhase();
+	void UpdateBlocks();
+	void ChangePhase();
+
+	// ゲームの現在フェーズ
+	Phase phase_ = Phase::kPlay;
+	// 終了フラグ
+	bool finished_ = false;
 
 	CameraController* cameraController_ = nullptr;
 	Player* player_ = nullptr;

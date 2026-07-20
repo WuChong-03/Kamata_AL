@@ -18,10 +18,13 @@ public:
 	/// </summary>
 	void Update();
 
-	/// <summary>	
+	/// <summary>
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	// 終了フラグのgetter
+	bool IsFinished() const { return isFinished_; }
 
 private:
 	// パーティクルの個数

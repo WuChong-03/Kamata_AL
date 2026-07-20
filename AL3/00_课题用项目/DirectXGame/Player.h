@@ -18,6 +18,8 @@ public:
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
 	KamataEngine::Vector3 GetWorldPosition() const;
 	AABB GetAABB() const;
+	// デスフラグのgetter
+	bool IsDead() const { return isDead_; }
 
 	// 衝突応答
 	void OnCollision(const Enemy* enemy);
@@ -92,6 +94,8 @@ private:
 
 	// 接地状態フラグ
 	bool onGround_ = true;
+	// デスフラグ
+	bool isDead_ = false;
 
 	// 旋回開始時の角度
 	float turnFirstRotationY_ = 0.0f;

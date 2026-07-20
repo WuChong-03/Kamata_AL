@@ -29,6 +29,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.translation_ = position;
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	onGround_ = true;
+	isDead_ = false;
 
 	// 行列を更新して定数バッファに転送
 	UpdateMatrix();
@@ -449,8 +450,8 @@ AABB Player::GetAABB() const {
 void Player::OnCollision(const Enemy* enemy) {
 
 	(void)enemy;
-	velocity_.y = kJumpAcceleration;
-	onGround_ = false;
+	// デスフラグを立てる
+	isDead_ = true;
 }
 
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
