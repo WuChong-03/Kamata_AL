@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <imgui.h>
 #include <numbers>
 
 using namespace KamataEngine;
@@ -30,12 +31,65 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
 	onGround_ = true;
 	isDead_ = false;
+	behavior_ = Behavior::kRoot;
+	behaviorRequest_ = Behavior::kUnknown;
+	BehaviorRootInitialize();
 
 	// 行列を更新して定数バッファに転送
 	UpdateMatrix();
 }
 
 void Player::Update() {
+
+#ifdef _DEBUG
+	// 攻撃行動の仮調整GUI
+	ImGui::Begin("Player Attack Debug");
+	ImGui::DragFloat("Dash Speed", &attackMoveSpeed_, 0.01f, 0.0f, 2.0f, "%.2f");
+	ImGui::DragInt("Dash Duration (Frame)", &attackDuration_, 1.0f, 1, 180);
+	ImGui::Text("Direction: %s", lrDirection_ == LRDirection::kRight ? "Right" : "Left");
+	ImGui::Text("Behavior: %s", behavior_ == Behavior::kAttack ? "Attack" : "Root");
+	ImGui::End();
+
+#endif
+
+	// 振るまい変更リクエストがあるなら
+	if (behaviorRequest_ != Behavior::kUnknown) {
+		// 振るまいを変更する
+		behavior_ = behaviorRequest_;
+		// 各振るまいごとの初期化を実行
+		switch (behavior_) {
+		case Behavior::kRoot:
+		default:
+			BehaviorRootInitialize();
+			break;
+		case Behavior::kAttack:
+			BehaviorAttackInitialize();
+			break;
+		}
+		// 振るまいリクエストをリセット
+		behaviorRequest_ = Behavior::kUnknown;
+	}
+
+	// 現在の振るまいに応じた毎フレームの処理
+	switch (behavior_) {
+	case Behavior::kRoot:
+	default:
+		BehaviorRootUpdate();
+		break;
+	case Behavior::kAttack:
+		BehaviorAttackUpdate();
+		break;
+	}
+}
+
+void Player::BehaviorRootInitialize() {}
+
+void Player::BehaviorRootUpdate() {
+
+	// 攻撃キーを押したら攻撃ビヘイビアをリクエスト
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		behaviorRequest_ = Behavior::kAttack;
+	}
 
 	// 移動入力
 	MoveInput();
@@ -65,6 +119,58 @@ void Player::Update() {
 
 	// 行列を更新して定数バッファに転送
 	UpdateMatrix();
+}
+
+void Player::BehaviorAttackInitialize() {
+
+	// カウンター初期化
+	attackParameter_ = 0;
+}
+
+void Player::BehaviorAttackUpdate() {
+
+	// 攻撃行動の経過時間をカウント
+	attackParameter_++;
+
+	// 現在向いている方向へ自動移動する
+	velocity_.x = lrDirection_ == LRDirection::kRight ? attackMoveSpeed_ : -attackMoveSpeed_;
+
+	// 空中では重力をかける
+	if (!onGround_) {
+		velocity_.y -= kGravityAcceleration;
+		velocity_.y = (std::max)(velocity_.y, -kLimitFallSpeed);
+	}
+
+	// 衝突情報を初期化
+	CollisionMapInfo collisionMapInfo;
+	// 移動量に速度の値をコピー
+	collisionMapInfo.movement = velocity_;
+
+	// マップ衝突チェック
+	CheckMapCollision(collisionMapInfo);
+
+	// 判定結果を反映して移動させる
+	MoveByCollisionResult(collisionMapInfo);
+
+	// 天井に接触している場合の処理
+	ProcessCeilingCollision(collisionMapInfo);
+
+	// 壁に接触している場合の処理
+	ProcessWallCollision(collisionMapInfo);
+
+	// 接地状態の切り替え
+	SwitchGroundState(collisionMapInfo);
+
+	// 旋回制御
+	UpdateTurn();
+
+	// 行列を更新して定数バッファに転送
+	UpdateMatrix();
+
+	// 既定の時間が経過したら通常行動に戻す
+	if (attackParameter_ >= static_cast<uint32_t>(attackDuration_)) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
 }
 
 void Player::MoveInput() {

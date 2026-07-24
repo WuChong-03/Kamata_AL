@@ -20,7 +20,7 @@ void TitleScene::Initialize() {
 	// ワールド変換の初期化
 	worldTransformTitleFont_.Initialize();
 	worldTransformTitleFont_.translation_ = {0.0f, 2.0f, 0.0f};
-	worldTransformTitleFont_.scale_ = {0.8f, 0.8f, 0.8f};
+	worldTransformTitleFont_.scale_ = {1.5f, 1.5f, 1.5f};
 
 	worldTransformPlayer_.Initialize();
 	worldTransformPlayer_.translation_ = {0.0f, -2.0f, 0.0f};

@@ -25,6 +25,13 @@ public:
 	void OnCollision(const Enemy* enemy);
 
 private:
+	// 振るまい
+	enum class Behavior {
+		kUnknown,
+		kRoot,
+		kAttack,
+	};
+
 	// 左右
 	enum class LRDirection {
 		kRight,
@@ -75,6 +82,14 @@ private:
 	KamataEngine::Vector3 CornerPosition(const KamataEngine::Vector3& center, Corner corner);
 	std::array<KamataEngine::Vector3, kNumCorner> CornerPositions(const KamataEngine::Vector3& center);
 	bool IsMapChipBlock(const KamataEngine::Vector3& position);
+	// 通常行動更新
+	void BehaviorRootUpdate();
+	// 攻撃行動更新
+	void BehaviorAttackUpdate();
+	// 通常行動初期化
+	void BehaviorRootInitialize();
+	// 攻撃行動初期化
+	void BehaviorAttackInitialize();
 	void MoveInput();
 	void CheckMapCollision(CollisionMapInfo& info);
 	void CheckMapCollisionUp(CollisionMapInfo& info);
@@ -96,6 +111,17 @@ private:
 	bool onGround_ = true;
 	// デスフラグ
 	bool isDead_ = false;
+
+	// 現在の振るまい
+	Behavior behavior_ = Behavior::kRoot;
+	// 次の振るまいリクエスト
+	Behavior behaviorRequest_ = Behavior::kUnknown;
+	// 攻撃ギミックの経過時間カウンター
+	uint32_t attackParameter_ = 0;
+	// 攻撃行動中の移動速度（ImGui調整用）
+	float attackMoveSpeed_ = 0.40f;
+	// 攻撃行動の継続時間（フレーム、ImGui調整用）
+	int attackDuration_ = 20;
 
 	// 旋回開始時の角度
 	float turnFirstRotationY_ = 0.0f;

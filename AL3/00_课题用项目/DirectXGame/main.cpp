@@ -86,6 +86,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	Initialize(L"GC2C_02_ゴ_チュウ");
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	ImGuiManager* imGuiManager = ImGuiManager::GetInstance();
 
 	// 最初のシーンの初期化
 	scene = Scene::kTitle;
@@ -97,16 +98,22 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (Update()) {
 			break;
 		}
+		// ImGui受付開始
+		imGuiManager->Begin();
 
 		// 現在シーンの更新
 		UpdateScene();
 		// シーン切り替え
 		ChangeScene();
 
-		dxCommon->PreDraw();
+		// ImGui受付終了
+		imGuiManager->End();
 
+		dxCommon->PreDraw();
 		// 現在シーンの描画
 		DrawScene();
+		// ImGui描画
+		imGuiManager->Draw();
 
 		dxCommon->PostDraw();
 	}
