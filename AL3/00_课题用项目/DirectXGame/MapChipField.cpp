@@ -1,5 +1,6 @@
 #include "MapChipField.h"
 #include <cassert>
+#include <cstddef>
 #include <cmath>
 #include <fstream>
 #include <map>
@@ -63,20 +64,23 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	}
 }
 
-MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
+MapChipType MapChipField::GetMapChipTypeByIndex(int32_t xIndex, int32_t yIndex) {
 
-	if (xIndex >= kNumBlockHorizontal) {
+	if (!IsValidIndex(xIndex, yIndex)) {
 		return MapChipType::kBlank;
 	}
 
-	if (yIndex >= kNumBlockVirtical) {
-		return MapChipType::kBlank;
-	}
-
-	return mapChipData_.data[yIndex][xIndex];
+	return mapChipData_.data[static_cast<std::size_t>(yIndex)][static_cast<std::size_t>(xIndex)];
 }
 
-Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) { return {kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0.0f}; }
+Vector3 MapChipField::GetMapChipPositionByIndex(int32_t xIndex, int32_t yIndex) {
+
+	return {
+	    kBlockWidth * static_cast<float>(xIndex),
+	    kBlockHeight * (static_cast<float>(kNumBlockVirtical - 1) - static_cast<float>(yIndex)),
+	    0.0f,
+	};
+}
 
 MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
 
@@ -86,13 +90,13 @@ MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3&
 	int32_t reversedYIndex = static_cast<int32_t>(std::floor((position.y + kBlockHeight / 2.0f) / kBlockHeight));
 	int32_t yIndex = static_cast<int32_t>(kNumBlockVirtical) - 1 - reversedYIndex;
 
-	indexSet.xIndex = static_cast<uint32_t>(xIndex);
-	indexSet.yIndex = static_cast<uint32_t>(yIndex);
+	indexSet.xIndex = xIndex;
+	indexSet.yIndex = yIndex;
 
 	return indexSet;
 }
 
-MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex) {
+MapChipField::Rect MapChipField::GetRectByIndex(int32_t xIndex, int32_t yIndex) {
 
 	// 指定ブロックの中心座標を取得する
 	Vector3 center = GetMapChipPositionByIndex(xIndex, yIndex);
@@ -109,12 +113,28 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 Vector3 MapChipField::GetLeftBottomBlankPosition() {
 
 	for (int32_t yIndex = static_cast<int32_t>(kNumBlockVirtical) - 1; yIndex >= 0; --yIndex) {
-		for (uint32_t xIndex = 0; xIndex < kNumBlockHorizontal; ++xIndex) {
-			if (GetMapChipTypeByIndex(xIndex, static_cast<uint32_t>(yIndex)) == MapChipType::kBlank) {
-				return GetMapChipPositionByIndex(xIndex, static_cast<uint32_t>(yIndex));
+		for (int32_t xIndex = 0; xIndex < static_cast<int32_t>(kNumBlockHorizontal); ++xIndex) {
+			if (GetMapChipTypeByIndex(xIndex, yIndex) == MapChipType::kBlank) {
+				return GetMapChipPositionByIndex(xIndex, yIndex);
 			}
 		}
 	}
 
 	return {0.0f, 0.0f, 0.0f};
+}
+
+bool MapChipField::IsValidIndex(int32_t xIndex, int32_t yIndex) const {
+
+	if (xIndex < 0 || yIndex < 0) {
+		return false;
+	}
+
+	const std::size_t y = static_cast<std::size_t>(yIndex);
+	const std::size_t x = static_cast<std::size_t>(xIndex);
+
+	if (y >= mapChipData_.data.size()) {
+		return false;
+	}
+
+	return x < mapChipData_.data[y].size();
 }

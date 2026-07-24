@@ -29,8 +29,8 @@ public:
 	};
 
 	struct IndexSet {
-		uint32_t xIndex;
-		uint32_t yIndex;
+		int32_t xIndex;
+		int32_t yIndex;
 	};
 
 	// 1ブロックのサイズ
@@ -53,12 +53,12 @@ public:
 	/// <summary>
 	/// マップチップ種別を取得する
 	/// </summary>
-	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
+	MapChipType GetMapChipTypeByIndex(int32_t xIndex, int32_t yIndex);
 
 	/// <summary>
 	/// マップチップ座標を取得する
 	/// </summary>
-	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+	KamataEngine::Vector3 GetMapChipPositionByIndex(int32_t xIndex, int32_t yIndex);
 
 	/// <summary>
 	/// 座標からマップチップ番号を取得する
@@ -68,7 +68,7 @@ public:
 	/// <summary>
 	/// ブロックの範囲矩形を取得する
 	/// </summary>
-	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
+	Rect GetRectByIndex(int32_t xIndex, int32_t yIndex);
 
 	/// <summary>
 	/// 左下から探した最初の空白マスの座標を取得する
@@ -79,5 +79,10 @@ public:
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
 private:
+	/// <summary>
+	/// マップチップ番号が範囲内か判定する
+	/// </summary>
+	bool IsValidIndex(int32_t xIndex, int32_t yIndex) const;
+
 	MapChipData mapChipData_;
 };
