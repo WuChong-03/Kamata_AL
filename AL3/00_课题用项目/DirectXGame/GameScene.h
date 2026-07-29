@@ -1,5 +1,6 @@
 #pragma once
 #include "CameraController.h"
+#include "Enemy.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "Player.h"
@@ -19,6 +20,7 @@ private:
 
 	CameraController* cameraController_ = nullptr;
 	Player* player_ = nullptr;
+	Enemy* enemy_ = nullptr;
 
 	Model* modelBlock_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
@@ -28,6 +30,8 @@ private:
 
 	// 自キャラ用3Dモデル
 	Model* modelPlayer_ = nullptr;
+	// 敵用3Dモデル
+	Model* modelEnemy_ = nullptr;
 
 	// 天球
 	Skydome* skydome_ = nullptr;

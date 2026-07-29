@@ -7,6 +7,7 @@ void GameScene::Initialize() {
 
 	// 3Dモデルデータの生成
 	modelPlayer_ = Model::CreateFromOBJ("player", true);
+	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
 	modelBlock_ = Model::CreateFromOBJ("block", true);
 	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
 
@@ -41,6 +42,12 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, &cameraController_->GetCamera(), playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
+	// 敵の生成と初期化
+	enemy_ = new Enemy();
+	Vector3 enemyPosition = playerPosition;
+	enemyPosition.x += 6.0f;
+	enemy_->Initialize(modelEnemy_, &cameraController_->GetCamera(), enemyPosition);
+
 	// カメラコントローラに追従対象をセット
 	cameraController_->SetTarget(player_);
 	// カメラを追従対象へ瞬間合わせ
@@ -57,6 +64,9 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+	if (enemy_) {
+		enemy_->Update();
+	}
 	skydome_->Update();
 
 #ifdef _DEBUG
@@ -118,6 +128,11 @@ void GameScene::Draw() {
 	// 自キャラの描画
 	player_->Draw();
 
+	// 敵の描画
+	if (enemy_) {
+		enemy_->Draw();
+	}
+
 	Model::PostDraw();
 }
 
@@ -170,6 +185,9 @@ GameScene::~GameScene() {
 	delete player_;
 	player_ = nullptr;
 
+	delete enemy_;
+	enemy_ = nullptr;
+
 	delete cameraController_;
 	cameraController_ = nullptr;
 
@@ -178,6 +196,9 @@ GameScene::~GameScene() {
 
 	delete modelPlayer_;
 	modelPlayer_ = nullptr;
+
+	delete modelEnemy_;
+	modelEnemy_ = nullptr;
 
 	delete modelBlock_;
 	modelBlock_ = nullptr;
